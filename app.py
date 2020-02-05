@@ -21,8 +21,7 @@ def get_short_url():
     if request.method == 'POST':
         long_url = request.form.get('long_url')
         short_url = domain.format("".join(random.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',5)))
-        db.set('key', 'Hello World this is from redis server')
-        #redis1.set("kek1", "hello")
+        db.set(short_url, long_url)
         return render_template('index.html', short_url = short_url) # генерируем случайную последовательность из 5 символов для нашей короткой ссылки)
 
     return render_template('index.html')
