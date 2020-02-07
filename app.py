@@ -1,32 +1,34 @@
-from flask import Flask, render_template, redirect, request
-import random
-from redis import Redis
-import os
-
-domain = "http://127.0.0.1:5000/{}"
+from flask import Flask, render_template, redirect, request, json, make_response, Response
+from shorten import URL_Shortener
 
 app = Flask(__name__)
-app.config['REDIS_HOST'] = 'localhost'
-app.config['REDIS_PORT'] = 6379
-app.config['REDIS_DB'] = 0
+shortener = URL_Shortener()
 
-db = Redis(host = 'localhost', port=6379, db=0)
-
-@app.route('/')
-def index():
-   return render_template('index.html')
-
-@app.route('/', methods=['post'])
+@app.route('/urls', methods=['post'])
 def get_short_url():
-    if request.method == 'POST':
-        long_url = request.form.get('long_url')
-        short_url = domain.format("".join(random.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',5)))# генерируем случайную последовательность из 5 символов для нашей короткой ссылки)
-        db.set(short_url, long_url)
-        return render_template('index.html', short_url = short_url) 
+    if request.json:
+        long_url = request.json['long_url']
+        success, code = shortener.short(long_url)
 
-    return render_template('index.html')
+        if success:
+            content = "{"+"'Location':'/urls/{}'".format(code)+"}"
+            status=201
+        else:
+            content = "{'msg': 'Error'}"
+            status=500
 
-@app.route('/<short_url>')
-def redirect_short_url(short_url):
-    long_url = db.get(short_url)
-    return redirect(long_url)
+    return Response(content, status=status, mimetype='application/json')
+
+@app.route('/urls', methods=['get'])
+def get_long_url():
+    code = request.args.get('code', 'null')
+    success, long_url = shortener.get_long_url(code)
+    
+    if success:
+        response = "{'success': True,"+"'long_url': '{}',".format(long_url) + "'short_url': '{}'".format("http://127.0.0.1:5000/urls/{}".format(code))+"}"
+        status = 200
+    else:
+        response = "{'msg':'Error'}"
+        status=500
+    
+    return Response(response, status=status, mimetype='application/json')
