@@ -10,7 +10,7 @@ app.config['REDIS_HOST'] = 'localhost'
 app.config['REDIS_PORT'] = 6379
 app.config['REDIS_DB'] = 0
 
-db = Redis(app)
+db = Redis(host = 'localhost', port=6379, db=0)
 
 @app.route('/')
 def index():
