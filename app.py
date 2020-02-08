@@ -32,7 +32,7 @@ def get_long_url():
     else:
         success, long_url = shortener.get_long_url(id)
     
-    if success:
+    if success and long_url != None:
         res = "{'success': True, " + "'long_url': '{}'".format(long_url) + "}"
         status = 200
     else:
