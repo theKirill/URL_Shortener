@@ -8,27 +8,29 @@ shortener = URL_Shortener()
 def get_short_url():
     if request.json:
         long_url = request.json['long_url']
-        success, code = shortener.short(long_url)
+        success, id = shortener.short(long_url)
 
         if success:
-            content = "{"+"'Location':'/urls/{}'".format(code)+"}"
-            status=201
+            response = "{" + "'success': True, 'id': '{}'".format(id) + "}"
+            status = 201
         else:
-            content = "{'msg': 'Error'}"
-            status=500
+            response = "{'success': False}"
+            status = 500
+            
+        return Response(response, status = status, mimetype = 'application/json')
 
-    return Response(content, status=status, mimetype='application/json')
+    return Response("{'success': False}", status = 400, mimetype = 'application/json')
 
 @app.route('/urls', methods=['get'])
 def get_long_url():
-    code = request.args.get('code', 'null')
-    success, long_url = shortener.get_long_url(code)
+    id = request.args.get('id', 'null')
+    success, long_url = shortener.get_long_url(id)
     
     if success:
-        response = "{'success': True,"+"'long_url': '{}',".format(long_url) + "'short_url': '{}'".format("http://127.0.0.1:5000/urls/{}".format(code))+"}"
+        response = "{'success': True, " + "'long_url': '{}'".format(long_url) + "}"
         status = 200
     else:
-        response = "{'msg':'Error'}"
-        status=500
+        response = "{'success': False}"
+        status = 500
     
-    return Response(response, status=status, mimetype='application/json')
+    return Response(response, status = status, mimetype = 'application/json')

@@ -8,22 +8,22 @@ class URL_Shortener:
                                        port=6379,
                                        db=0)
 
-    def __get_short_code(self, url):
-        code = "".join(random.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 5))
-        return code
+    def __get_short_id(self, url):
+        id = "".join(random.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 5))
+        return id
 
     def short(self, long_url):
-        code = self.__get_short_code(long_url)
-        short_url = "http://127.0.0.1:5000/urls/{}".format(code)
+        id = self.__get_short_id(long_url)
+        short_url = "http://127.0.0.1:5000/urls/{}".format(id)
 
         try:
-            self.redis.set(code, long_url)
-            return True, code
+            self.redis.set(id, long_url)
+            return True, id
         except:
             return False
 
-    def get_long_url(self, code):
+    def get_long_url(self, id):
         try:
-            return True, self.redis.get(code)
+            return True, self.redis.get(id)
         except:
             return False
