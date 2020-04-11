@@ -1,12 +1,12 @@
 import redis
 import random
+import os
 
 class URL_Shortener:
 
     def __init__(self):
-        self.redis = redis.StrictRedis(host='localhost',
-                                       port=6379,
-                                       db=0)
+        redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+        self.redis = redis.from_url(redis_url)
 
     def __get_short_id(self):
         id = "".join(random.sample('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 5))
