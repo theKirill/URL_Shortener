@@ -48,3 +48,14 @@ def get_long_url():
     response.headers['Pragma'] = 'no-cache'    
 
     return response, status
+
+@app.route('/about', methods=['get'])
+def get_long_url():
+    res = "{'name': 'Kirill Yanyushkin'}"
+
+    response = make_response(json.dumps(res))
+    response.headers['Content-Type'] = 'application/json'
+    response.headers['Cache-Control'] = 'no-cache'    
+    response.headers['Pragma'] = 'no-cache'    
+
+    return response, 200
