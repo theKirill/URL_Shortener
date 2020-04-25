@@ -6,18 +6,21 @@ shortener = URL_Shortener()
 
 @app.route('/urls', methods=['post'])
 def get_short_url():
-    res = "{'success': False}"
+    success = False
     status = 400
 
     if request.json:
         long_url = request.json['long_url']
-        success, id = shortener.short(long_url)
+        success, key = shortener.short(long_url)
 
         if success:
-            res = "{" + "'success': True, 'id': '{}'".format(id) + "}"
             status = 201
         else:
             status = 500
+
+    res = dict()
+    res['success'] = success
+    res['key'] = key
 
     response = make_response(json.dumps(res))
     response.headers['Content-Type'] = 'application/json'
@@ -25,22 +28,24 @@ def get_short_url():
 
 @app.route('/urls', methods=['get'])
 def get_long_url():
-    id = request.args.get('id', 'null')
+    key = request.args.get('key', 'null')
 
-    if id == 'null':
+    if key == 'null':
         success = False
     else:
-        success, long_url = shortener.get_long_url(id)
+        success, long_url = shortener.get_long_url(key)
     
     if success and long_url != None:
-        res = "{'success': True, " + "'long_url': '{}'".format(long_url) + "}"
         status = 200
     else:
-        res = "{'success': False}"
-        if id == 'null':
+        if key == 'null':
             status = 400
         else:
             status = 500
+
+    res = dict()
+    res['success'] = success
+    res['long_url'] = str(long_url)[2:-1]
 
     response = make_response(json.dumps(res))
     response.headers['Content-Type'] = 'application/json'
@@ -48,14 +53,3 @@ def get_long_url():
     response.headers['Pragma'] = 'no-cache'    
 
     return response, status
-
-@app.route('/about', methods=['get'])
-def get_long_url():
-    res = "{'name': 'Kirill Yanyushkin'}"
-
-    response = make_response(json.dumps(res))
-    response.headers['Content-Type'] = 'application/json'
-    response.headers['Cache-Control'] = 'no-cache'    
-    response.headers['Pragma'] = 'no-cache'    
-
-    return response, 200
